@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VenueCrowd | Smart Event Optimizer</title>
+    
+    <!-- SEO & Security -->
+    <meta name="description" content="Revolutionizing event experiences with real-time crowd management and navigation using Google Maps API.">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Accessibility Styles (Screen Reader only) -->
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header role="banner">
+        <div class="logo">
+            VenueCrowd 
+            <span aria-hidden="true" style="font-size: 0.9rem; opacity: 0.5;">v2.1 Premium</span>
+        </div>
+        
+        <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+            <div id="user-profile" style="display: none; align-items: center; gap: 8px;">
+                <img src="https://lh3.googleusercontent.com/a/default-user" alt="" style="width: 32px; height: 32px; border-radius: 50%;">
+                <span id="user-name" style="font-size: 0.85rem;">Attendee</span>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="googleAuth()" id="auth-btn" aria-label="Sign in with Google">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" style="width: 16px;" alt="" aria-hidden="true"> 
+                Sign In
+            </button>
+            
+            <div id="connection-status" role="status" aria-live="polite" style="font-size: 0.75rem;">
+                <span class="loader" style="display: inline-block; vertical-align: middle;"></span> Connecting...
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container" id="main-content">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" aria-label="Venue Navigation and Tools">
+            <!-- Google Assistant AI -->
+            <section class="panel" aria-labelledby="ai-title">
+                <h2 id="ai-title" class="panel-title">🧠 Google Assistant</h2>
+                <div class="input-group" style="display: flex; gap: 8px;">
+                    <input type="text" id="ai-query" placeholder="Ask: 'Where is the food?'" aria-label="Ask Google AI assistant">
+                    <button class="btn" onclick="askAssistant()" style="padding: 10px; height: 42px;" aria-label="Submit AI query">🚀</button>
+                </div>
+                <div id="ai-response" role="log" aria-live="polite" style="margin-top: 10px; font-size: 0.75rem; color: var(--secondary); background: rgba(34, 211, 238, 0.05); padding: 10px; border-radius: 6px; display: none;"></div>
+            </section>
+
+            <!-- Live Crowd Density -->
+            <section class="panel" aria-labelledby="crowd-title">
+                <h2 id="crowd-title" class="panel-title">Venue Crowd Density</h2>
+                <div id="crowd-list" role="list" aria-live="polite" aria-busy="false">
+                    <p style="color: var(--text-muted)">Monitoring live zones...</p>
+                </div>
+            </section>
+
+            <!-- Google Calendar Integration -->
+            <section class="panel" aria-labelledby="cal-title">
+                <h2 id="cal-title" class="panel-title">Event Schedule</h2>
+                <div style="font-size: 0.9rem; margin-bottom: 1rem;" id="event-info">
+                    <strong>Championship Final 🏆</strong><br>
+                    <span style="color: var(--text-muted)">Sunday, May 10th - Kickoff 18:00</span>
+                </div>
+                <button class="btn btn-calendar" style="width: 100%" onclick="syncCalendar()" aria-describedby="event-info">
+                    <span>📅</span> Add to Google Calendar
+                </button>
+            </section>
+
+            <!-- Routing Engine -->
+            <section class="panel" aria-labelledby="route-title">
+                <h2 id="route-title" class="panel-title">Smart Optimization</h2>
+                
+                <div class="control-group">
+                    <label for="start-node">Current Point</label>
+                    <select id="start-node">
+                        <option value="gate_a">Main Gate A</option>
+                        <option value="gate_b">North Gate B</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="end-node">Destination</label>
+                    <select id="end-node">
+                        <option value="seating_zone_1">Lower Tier Seating</option>
+                        <option value="food_court">Central Food Court</option>
+                    </select>
+                </div>
+
+                <button class="btn" style="width: 100%" onclick="getSmartRoute()">
+                    🚀 Find Smartest Route
+                </button>
+
+                <div id="route-panel" style="display: none; margin-top: 1rem; padding: 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 8px;" role="region" aria-label="Optimized Route Result">
+                    <strong style="color: var(--secondary)">AI Recommendation</strong>
+                    <p id="route-text" style="font-size: 0.8rem; line-height: 1.4; margin-top: 5px;"></p>
+                </div>
+            </section>
+        </nav>
+
+        <!-- Dynamic Map View -->
+        <div id="map-container" role="application" aria-label="Interactive Venue Map">
+            <div id="map"></div>
+            <div class="floating-controls">
+                <button class="btn btn-secondary" onclick="simulateAlert()" aria-label="Admin: Broadcast Alert">
+                    🚨 Emergency Sim
+                </button>
+                <button class="btn btn-secondary" onclick="toggleAdminModal(true)" aria-label="Open Simulation Settings">
+                    ⚙️ Admin Control
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Accessible Notification Overlay -->
+    <div id="notification" role="alert" aria-live="assertive" aria-atomic="true">
+        <h3 id="notif-title" style="font-size: 1rem; margin-bottom: 4px;">System Update</h3>
+        <p id="notif-msg" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="modal-overlay" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+        <div class="modal">
+            <h2 id="modal-title" style="margin-bottom: 1.5rem;">Simulation Settings</h2>
+            
+            <div class="control-group">
+                <label for="admin-zone">Target Zone</label>
+                <select id="admin-zone">
+                    <option value="gate_a">Main Gate A</option>
+                    <option value="gate_b">North Gate B</option>
+                    <option value="food_court">Food Court</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="admin-density">Simulated Density (%)</label>
+                <input type="number" id="admin-density" min="0" max="100" value="85">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button class="btn btn-secondary" style="flex: 1" onclick="toggleAdminModal(false)">Cancel</button>
+                <button class="btn" style="flex: 1" onclick="submitAdminUpdate()">Apply Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
