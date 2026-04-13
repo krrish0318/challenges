@@ -1,19 +1,26 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { zones } = require('../data/venueData');
+const { SYSTEM } = require('../utils/constants');
 
 /**
- * Enhanced Google Services Orchestrator
- * Integrates Gemini AI, Structured Logging, and Map Directions Logic.
+ * Google Services Orchestrator
+ * Integrates Gemini AI, Structured Logging, and Maps Directions Logic.
  */
 class GoogleService {
   constructor() {
     this.genAI = null;
     if (process.env.GEMINI_API_KEY) {
-       this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     }
   }
 
-  // 1. Gemini AI Analysis: Natural Language Routing
+  /**
+   * Gemini AI Analysis: Natural Language Routing
+   * Interrogates current venue stats to provide contextual advice.
+   * 
+   * @param {string} query - The user's natural language question
+   * @returns {Promise<Object>} The AI's recommendation and status.
+   */
   async analyzeVenueNeeds(query) {
     if (!this.genAI) {
       this.logEvent('WARN', 'Gemini API key missing, using simulated response');
@@ -58,24 +65,33 @@ class GoogleService {
     }
   }
 
-  // 2. Structured Cloud Logging (Simulated for Cloud Run/GKE Insights)
+  /**
+   * Structured Cloud Logging (Simulated for GCP Insights)
+   * 
+   * @param {string} severity - INFO, WARN, ERROR
+   * @param {string} message - Human readable log message
+   * @param {Object} metadata - Contextual data keys
+   */
   logEvent(severity, message, metadata = {}) {
     const entry = {
         severity,
         message,
         timestamp: new Date().toISOString(),
-        service: 'venue-optimization-engine',
+        service: SYSTEM.SERVICE_NAME,
         ...metadata
     };
-    // In production: send to Google Cloud Logging or winston-google-cloud
-    console.log(`[GoogleCloudLogging] [${severity}] ${message}`, JSON.stringify(metadata));
+    // Standard output for log aggregators (e.g. Cloud Logging agent)
+    console.log(`[${severity}] ${message}`, JSON.stringify(metadata));
     return entry;
   }
 
-  // 3. Polyline Simulation (Mock Directions Polyline for Maps)
+  /**
+   * Polyline Simulation for Maps Visualization
+   * 
+   * @param {Array<string>} pathIds - List of zones in order
+   * @returns {Object} Maps-compatible data payload
+   */
   generatePathPolyline(pathIds) {
-    // Returns dummy polyline data format used for Maps visualization
-    // Maps standard encoded path format
     return {
         path: pathIds,
         encoded: "a~l~Fjk~uOnA@wD?gA@yC?gC@gA@yC?", 
